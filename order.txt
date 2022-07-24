@@ -1,0 +1,109 @@
+def orderNow(request):
+   if request.method == 'POST':
+      name=request.POST.get('name')
+      email = request.POST.get('email')
+      mobile = request.POST.get('mobile')
+      almobile = request.POST.get('almobile')
+      address = request.POST.get('address')
+      land= request.POST.get('address2')
+      city = request.POST.get('city')
+      state = request.POST.get('state')
+      zip = request.POST.get('zipcode')
+      items=request.POST.get('items')
+      f=items.split("{<>}")
+      print(f)
+      price = request.POST.get('price')
+      if items!='':
+        for i in f:
+         if i !="":
+          opp=i.split("/")
+          print(opp)
+          order=Order(Name=name,Email=email,Mobile=mobile,Alternative_Mobile=almobile,Address=address,landmark=land,City=city,State=state,Zip=zip,Orders_name=opp[0],Orders_price=opp[2],Orders_quantity=opp[1])
+          order.save()
+          id=order.orderid
+          number=random.randint(1000,100000)
+          idnew='IKART'+str(number)+str(id)
+          saveid=Order.objects.get(pk=id)
+          saveid.Track_Id=idnew
+          saveid.save()
+          trackorder=TrackOrder(Order_id=idnew,Email=email,order_Description='Your Order Has Been Placed')
+          trackorder.save()
+        return render(request, "shop/thankyou.html",{'id':idnew} )
+        request.method = 'GET'
+      if items!='' and thanks % 2 != 0:
+         return render(request, "shop/cart.html", {'msg':'none'})
+      else:
+         msg = 'Your Cart Is Empty! Please Add Some Items In Your Cart First...'
+         return render(request, "shop/cart.html", {'msg': msg})
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+{%if msg  == 'none'%}
+<ul class="li-group mt-5">
+  <li class="list-group-item pt-5" style="height:300px">
+    <center><span class="pt-5" style="font-size:3rem;font-family: 'Lobster', cursive;color:teal">NO ITEMS!GO AND PLACE YOUR FIRST ORDER..</span></center>
+  </li>
+</ul>
+
+{%endif%}
+<ul class="list-group container-fluid mt-4" style="width:98vw">
+
+{%for items,price,Track in product%}
+   <li class="list-group-item col-12 p-3 d-flex flex-column justify-content-center"><b class="col-12 col-md-12 col-sm-12 col-l-12 col-xl-12 " style="font-size:1.4rem;color:teal">{{items}}</b>
+   <span><b class="col-12 col-md-12 col-sm-12 col-l-2 col-xl-12 " style="font-size:1rem;color:">Price: Rs.{{price}}</b></span>
+   <span><b class="col-12 col-md-12 col-sm-12 col-l-12 col-xl-12 " style="font-size:0.8rem;">Track Id: {{Track}}</b></span>
+  <span><a href="/shop/tracknow/" class="clicked btn btn-primary cart mt-4" >Track Now</a></span></li>
+  <hr>
+{%endfor%}
+
+    </ul>
+
+{% endblock%}
+
+
+
+
+string+=cart[item][1]+'/'+ cart[item][0]+"/"+ cart[item][3] +"{<>}"
+
+
+
+
+
+
+
+
+
+class Order(models.Model):
+    orderid=models.AutoField(primary_key=True)
+    Name = models.CharField(max_length=50 ,default="")
+    Email = models.CharField(max_length=70,default="")
+    Mobile = models.IntegerField(default="0")
+    Alternative_Mobile = models.IntegerField(default="0")
+    Address= models.CharField(max_length=7000,default="")
+    landmark = models.CharField(max_length=150, default="")
+    City=models.CharField(max_length=50, default="")
+    State=models.CharField(max_length=30, default="")
+    Zip=models.CharField(max_length=10, default="")
+    Orders_name = models.CharField(max_length=1000000000,default="")
+    Orders_price = models.CharField(max_length=1000000000,default="")
+    Orders_quantity = models.CharField(max_length=1000000000, default="")
+    Track_Id = models.CharField(max_length=70, default="")
+    def __str__(self):
+         return  self.Name
